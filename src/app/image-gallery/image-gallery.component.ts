@@ -15,7 +15,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
-import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver-es';
 @Component({
   selector: 'app-image-gallery',
   standalone: true,

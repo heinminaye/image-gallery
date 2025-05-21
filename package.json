@@ -23,6 +23,7 @@
     "@tailwindcss/cli": "^4.1.7",
     "@tailwindcss/postcss": "^4.1.7",
     "@types/file-saver": "^2.0.7",
+    "@types/file-saver-es": "^2.0.3",
     "file-saver-es": "^2.0.5",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.1.7",
