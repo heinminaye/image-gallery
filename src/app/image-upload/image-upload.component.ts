@@ -92,9 +92,17 @@ export class ImageUploadComponent {
 
     this.api.uploadImage(formData).subscribe({
       next: (res) => {
+      if (res.returncode === '200') {
+        this.snackBar.open(res.message, 'Close', { duration: 3000 });
+        this.dialogRef.close('uploaded');
+      } else {
+        this.snackBar.open('Upload failed: ' + res.message, 'Close', { duration: 5000 });
+        this.isUploading = false;
+        this.uploadProgress = 0;
+      }
         this.snackBar.open('Image uploaded successfully!', 'Close', { duration: 3000 });
         this.resetForm();
-        this.uploadComplete.emit();
+        this.dialogRef.close('uploaded');
       },
       error: (err) => {
         this.snackBar.open('Upload failed: ' + err.message, 'Close', { duration: 5000 });
