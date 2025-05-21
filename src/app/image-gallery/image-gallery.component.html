@@ -1,42 +1,56 @@
-<div class="p-6 min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto">
     <!-- Header Section with Improved Layout -->
-    <div class="flex sticky top-10 bg-white z-10 flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-      <div>
-        <h2 class="text-3xl font-bold text-gray-800">Image Gallery</h2>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <!-- Custom Tailwind CSS Search Bar -->
-        <div class="relative w-full md:w-72">
-          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 20 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-            </svg>
-          </div>
-          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white
-           focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:outline-none" placeholder="Search images...">
+    <div class="sticky p-10 top-0 z-10 bg-white py-4 mb-8 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <a class="text-3xl font-bold text-gray-800" href="/">IMAGE GALLERY</a>
         </div>
 
-        <!-- Upload Button -->
-        <button mat-raised-button (click)="openUploadModal()" class="!rounded-md
-         active:scale-[0.98] !h-full !py-1.5
-         !text-sm sm:text-base">
-          <!-- Icon and text in a flex row -->
-          <div class="flex items-center gap-0 sm:gap-2">
-            <mat-icon class="text-gray-600 text-[20px] sm:text-[24px] sm:mr-2">cloud_upload</mat-icon>
-            <span class="hidden sm:inline font-medium">Upload</span>
+        <div class="flex items-center gap-4">
+          <!-- Search Bar with Clear Button -->
+          <div class="relative w-full md:w-72">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+            </div>
+            <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()"
+                   class="block w-full p-2 pl-10 pr-8 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white
+                   focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:outline-none"
+                   placeholder="Search images...">
+            <button *ngIf="searchQuery" (click)="clearSearch()"
+                    class="absolute inset-y-0 right-0 !flex !items-center  cursor-pointer !justify-center pr-1.5 text-gray-400 hover:text-gray-600">
+              <mat-icon class="!items-center !justify-center !flex !text-[20px]">close</mat-icon>
+            </button>
           </div>
-        </button>
 
-
+          <!-- Upload Button -->
+          <button mat-raised-button (click)="openUploadModal()"
+                  class="!rounded-md active:scale-[0.98] !h-full !py-1.5 !text-sm sm:text-base">
+            <div class="flex items-center gap-0 sm:gap-2">
+              <mat-icon class="text-gray-600 text-[20px] sm:text-[24px] sm:mr-2">cloud_upload</mat-icon>
+              <span class="hidden sm:inline font-medium">Upload</span>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Image Grid with Enhanced Card Design -->
-    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" @listAnimation>
+    <!-- Empty States -->
+    <div *ngIf="!isLoading && images.length === 0">
+        <div class="max-w-md mx-auto h-full flex justify-center p-8 bg-white rounded-xl shadow-sm border border-gray-100">
+          <div class="flex flex-col">
+            <h3 class="text-xl font-medium text-gray-700 mb-5">No Images Found</h3>
+            <button mat-raised-button color="primary" (click)="openUploadModal()">
+              <mat-icon>cloud_upload</mat-icon>
+              <span>Upload Image</span>
+            </button>
+          </div>
+      </div>
+    </div>
+
+    <div class="grid px-10 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" @listAnimation>
       <ng-container *ngFor="let image of images; let i = index">
         <mat-card @fadeInGrow class="group h-full flex flex-col overflow-hidden border border-gray-200 rounded-xl bg-white
             shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/20">
@@ -90,8 +104,8 @@
               </span>
               <span class="px-2 py-0.5 rounded-full text-[11px] font-medium uppercase
             {{ getImageTypeColor(image.contentType) }}">
-      {{ image.contentType?.split('/')[1] || 'image' }}
-    </span>
+                {{ image.contentType?.split('/')[1] || 'image' }}
+              </span>
             </div>
           </mat-card-content>
         </mat-card>
@@ -109,7 +123,7 @@
     </div>
 
     <!-- End of Gallery -->
-    <div *ngIf="!hasMore && images.length > 0 && !isLoading" class="text-center pt-12 flex flex-col items-center">
+    <div *ngIf="!hasMore && images.length > 0 && !isLoading" class="text-center pt-12 pb-5 flex flex-col items-center">
       <p class="text-gray-400 text-lg">You've viewed all images</p>
       <p class="text-gray-400 text-sm mt-1">Upload more to continue browsing</p>
     </div>

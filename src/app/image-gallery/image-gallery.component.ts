@@ -69,6 +69,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   private resizeSubscription!: Subscription;
   private scrollPositionBeforeLoad = 0;
 
+
   constructor(
     private api: ApiService,
     private dialog: MatDialog
