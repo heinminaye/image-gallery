@@ -11,66 +11,69 @@
   </div>
   <div class="flex-1 p-5 overflow-y-auto flex flex-col">
     <!-- Title Field -->
-  <div class="form-field-container">
-    <!-- Standard HTML label associated with the input via 'for' and 'id' -->
-    <label for="titleInput" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+    <div class="form-field-container">
+      <label for="titleInput" class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+      <mat-form-field appearance="outline" class="w-full">
+        <input matInput formControlName="title" required id="titleInput">
+        <mat-error *ngIf="uploadForm.get('title')?.invalid">Title is required</mat-error>
+      </mat-form-field>
+    </div>
 
-    <mat-form-field appearance="outline" class="w-full">
-      <input matInput formControlName="title" required id="titleInput">
-      <mat-error *ngIf="uploadForm.get('title')?.invalid">Title is required</mat-error>
-    </mat-form-field>
-  </div>
+    <!-- Description Field -->
+    <div class="form-field-container">
+      <label for="descriptionInput" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+      <mat-form-field appearance="outline" class="w-full">
+        <textarea matInput formControlName="description" required rows="3" id="descriptionInput"></textarea>
+        <mat-error *ngIf="uploadForm.get('description')?.invalid">Description is required</mat-error>
+      </mat-form-field>
+    </div>
 
-  <!-- Description Field -->
-  <div class="form-field-container">
-    <label for="descriptionInput" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+    <!-- File Upload -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Image *</label>
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" #fileInput>
 
-    <mat-form-field appearance="outline" class="w-full">
-      <textarea matInput formControlName="description" required rows="3" id="descriptionInput"></textarea>
-      <mat-error *ngIf="uploadForm.get('description')?.invalid">Description is required</mat-error>
-    </mat-form-field>
-  </div>
+      <div (click)="fileInput.click()"
+        class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors"
+        [class.border-blue-400]="selectedFile || isDragging"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
 
-  <!-- File Upload -->
-  <div class="space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Image *</label>
-    <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" #fileInput>
+        <div *ngIf="!selectedFile; else fileSelected" class="space-y-2">
+          <mat-icon class="text-gray-400">{{ isDragging ? 'file_upload' : 'cloud_upload' }}</mat-icon>
+          <p class="text-sm text-gray-600">
+            {{ isDragging ? 'Drop your image here' : 'Click to select or drag and drop' }}
+          </p>
+          <p class="text-xs text-gray-500">JPG, PNG, WEBP (Max 10MB)</p>
+        </div>
 
-    <div (click)="fileInput.click()"
-      class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors"
-      [class.border-blue-400]="selectedFile">
-
-      <div *ngIf="!selectedFile; else fileSelected" class="space-y-2">
-        <mat-icon class="text-gray-400">cloud_upload</mat-icon>
-        <p class="text-sm text-gray-600">Click to select or drag and drop</p>
-        <p class="text-xs text-gray-500">JPG, PNG, WEBP (Max 10MB)</p>
+        <ng-template #fileSelected>
+          <div class="flex flex-col items-center space-y-2">
+            <mat-icon class="text-green-500">check_circle</mat-icon>
+            <span class="font-medium text-gray-700 truncate max-w-full">{{ selectedFile?.name }}</span>
+            <span class="text-xs text-gray-500">{{ selectedFile?.size | filesize }}</span>
+          </div>
+        </ng-template>
       </div>
 
-      <ng-template #fileSelected>
-        <div class="flex flex-col items-center space-y-2">
-          <mat-icon class="text-green-500">check_circle</mat-icon>
-          <span class="font-medium text-gray-700 truncate max-w-full">{{ selectedFile?.name }}</span>
-          <span class="text-xs text-gray-500">{{ selectedFile?.size | filesize }}</span>
-        </div>
-      </ng-template>
+      <!-- Progress Bar -->
+      <mat-progress-bar *ngIf="isUploading" mode="determinate" [value]="uploadProgress" class="mt-2">
+      </mat-progress-bar>
     </div>
-     <!-- Progress Bar -->
-  <mat-progress-bar *ngIf="isUploading" mode="determinate" [value]="uploadProgress" class="mt-2">
-  </mat-progress-bar>
-  </div>
 
-  <!-- Action Buttons -->
-  <div class="flex justify-end gap-3 pt-4">
-    <button mat-stroked-button type="button" (click)="onClose()" [disabled]="isUploading"
-      class="px-6 !rounded-md">
-      Cancel
-    </button>
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-3 pt-4">
+      <button mat-stroked-button type="button" (click)="onClose()" [disabled]="isUploading"
+        class="px-6 !rounded-md">
+        Cancel
+      </button>
 
-    <button mat-raised-button color="primary" type="submit"
-      [disabled]="uploadForm.invalid || !selectedFile || isUploading" class="px-6 !rounded-md">
-      <span *ngIf="!isUploading">Upload</span>
-      <span *ngIf="isUploading">Uploading...</span>
-    </button>
-  </div>
+      <button mat-raised-button color="primary" type="submit"
+        [disabled]="uploadForm.invalid || !selectedFile || isUploading" class="px-6 !rounded-md">
+        <span *ngIf="!isUploading">Upload</span>
+        <span *ngIf="isUploading">Uploading...</span>
+      </button>
+    </div>
   </div>
 </form>

@@ -38,6 +38,7 @@ export class ImageUploadComponent {
   selectedFile: File | null = null;
   isUploading = false;
   uploadProgress = 0;
+  isDragging = false;
 
   constructor(
     private fb: FormBuilder,
@@ -53,28 +54,50 @@ export class ImageUploadComponent {
     });
   }
 
-  get safeSelectedFile(): File {
-    return this.selectedFile!;
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        this.snackBar.open('Invalid file type. Please upload JPG, PNG, or WEBP.', 'Close', { duration: 5000 });
-        return;
-      }
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
 
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        this.snackBar.open('File size exceeds 10MB limit.', 'Close', { duration: 5000 });
-        return;
-      }
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
 
-      this.selectedFile = file;
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.handleFileSelection(event.dataTransfer.files[0]);
     }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.handleFileSelection(input.files[0]);
+    }
+  }
+
+  private handleFileSelection(file: File) {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Invalid file type. Please upload JPG, PNG, or WEBP.', 'Close', { duration: 5000 });
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('File size exceeds 10MB limit.', 'Close', { duration: 5000 });
+      return;
+    }
+
+    this.selectedFile = file;
   }
 
   onSubmit() {
@@ -92,17 +115,14 @@ export class ImageUploadComponent {
 
     this.api.uploadImage(formData).subscribe({
       next: (res) => {
-      if (res.returncode === '200') {
-        this.snackBar.open(res.message, 'Close', { duration: 3000 });
-        this.dialogRef.close('uploaded');
-      } else {
-        this.snackBar.open('Upload failed: ' + res.message, 'Close', { duration: 5000 });
-        this.isUploading = false;
-        this.uploadProgress = 0;
-      }
-        this.snackBar.open('Image uploaded successfully!', 'Close', { duration: 3000 });
-        this.resetForm();
-        this.dialogRef.close('uploaded');
+        if (res.returncode === '200') {
+          this.snackBar.open(res.message, 'Close', { duration: 3000 });
+          this.dialogRef.close('uploaded');
+        } else {
+          this.snackBar.open('Upload failed: ' + res.message, 'Close', { duration: 5000 });
+          this.isUploading = false;
+          this.uploadProgress = 0;
+        }
       },
       error: (err) => {
         this.snackBar.open('Upload failed: ' + err.message, 'Close', { duration: 5000 });
@@ -120,6 +140,7 @@ export class ImageUploadComponent {
     this.uploadForm.reset();
     this.selectedFile = null;
   }
+
   onClose(): void {
     this.dialogRef.close();
   }
