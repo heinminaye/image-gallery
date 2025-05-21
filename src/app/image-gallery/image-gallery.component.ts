@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { FileSizePipe } from '../shared/pipes/filesize.pipe';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
-import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription } from 'rxjs';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
@@ -66,7 +66,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   private scrollSubscription!: Subscription;
   private resizeSubscription!: Subscription;
   private scrollPositionBeforeLoad = 0;
-
+  private scrollSubject = new Subject<void>();
 
   constructor(
     private api: ApiService,
@@ -87,6 +87,12 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.resizeSubscription = fromEvent(window, 'resize')
       .pipe(debounceTime(200))
       .subscribe(() => this.checkScrollPosition());
+      this.scrollSubject.pipe(
+      debounceTime(200),
+        distinctUntilChanged(),
+      ).subscribe(() => this.checkScrollPosition());
+
+  fromEvent(window, 'scroll').subscribe(() => this.scrollSubject.next());
   }
 
   ngOnDestroy() {
@@ -103,7 +109,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }, {
       root: null,
-      rootMargin: '300px 0px',
+      rootMargin: '200px 0px',
       threshold: 0.01
     });
 
@@ -164,7 +170,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
           behavior: 'auto'
         });
         this.isLoading = false;
-      }, 100);
+      }, 300);
     }
   });
 }
