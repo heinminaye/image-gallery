@@ -1,0 +1,114 @@
+<div class="p-6 min-h-screen">
+  <div class="flex justify-end mb-6">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openUploadModal()"
+      class="flex items-center gap-2">
+      <mat-icon>add</mat-icon>
+      Upload Image
+    </button>
+  </div>
+  <div class="max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <h2 class="text-3xl font-bold text-gray-800 animate-fade-in">Image Gallery</h2>
+
+      <!-- Search Bar -->
+      <div class="w-full md:w-96 animate-fade-in delay-100">
+        <mat-form-field appearance="fill" class="w-full" floatLabel="always">
+          <mat-label>Search images</mat-label>
+          <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+          <button matSuffix mat-icon-button (click)="onSearch()">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Image Grid -->
+    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      <ng-container *ngFor="let image of images; let i = index">
+        <!-- Card with Animation -->
+        <mat-card
+          @fadeInGrow
+          *ngIf="!isLoading"
+          class="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 border border-gray-200 rounded-xl"
+          [style.animation-delay]="(i % 8) * 0.1 + 's'">
+
+          <!-- Image Container with Loading State -->
+          <div class="relative pt-[100%] overflow-hidden bg-gray-100">
+            <img
+              [src]="getImageUrl(image.fileId)"
+              [alt]="image.title"
+              loading="lazy"
+              (load)="image.loaded = true"
+              [class.opacity-0]="!image.loaded"
+              class="absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 hover:scale-105" />
+
+            <!-- Skeleton Loader -->
+            <div *ngIf="!image.loaded" class="absolute inset-0 flex items-center justify-center">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          </div>
+
+          <!-- Card Content -->
+          <mat-card-content class="p-4">
+            <h3 class="font-semibold text-lg text-gray-800 mb-1 truncate">{{ image.title }}</h3>
+            <p class="text-gray-600 text-sm line-clamp-2 mb-2">{{ image.description }}</p>
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <span>{{ image.size | filesize }}</span>
+              <span class="bg-gray-100 px-2 py-1 rounded-full">{{ image.contentType }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+
+      <!-- Skeleton Loaders for Loading State -->
+      <ng-container *ngIf="isLoading">
+        <div *ngFor="let _ of [].constructor(8)" class="animate-pulse">
+          <div class="h-full bg-gray-200 rounded-xl overflow-hidden">
+            <div class="pt-[100%] bg-gray-300"></div>
+            <div class="p-4 space-y-2">
+              <div class="h-5 bg-gray-300 rounded w-3/4"></div>
+              <div class="h-4 bg-gray-300 rounded w-full"></div>
+              <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Scroll detection element -->
+    <div #scrollAnchor *ngIf="hasMore && !isLoading"></div>
+
+    <!-- Loading spinner at bottom when loading more -->
+    <div *ngIf="isLoading" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-full p-3 z-10">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- End of gallery message -->
+    <div *ngIf="!hasMore && images.length > 0" class="text-center py-8 text-gray-400 animate-fade-in">
+      You've reached the end of the gallery
+    </div>
+  </div>
+</div>
+
+<!-- Upload Modal (unchanged) -->
+<div *ngIf="showUploadModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <!-- Modal Header -->
+    <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+      <h2 class="text-xl font-bold text-gray-800">Upload New Image</h2>
+      <button mat-icon-button (click)="closeUploadModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <app-image-upload
+      *ngIf="showUploadModal"
+      (uploadComplete)="onUploadComplete()">
+    </app-image-upload>
+  </div>
+</div>

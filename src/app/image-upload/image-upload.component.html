@@ -1,0 +1,88 @@
+<form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+  <!-- Title Field -->
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" required>
+    <mat-icon matPrefix>title</mat-icon>
+    <mat-error *ngIf="uploadForm.get('title')?.invalid">Title is required</mat-error>
+  </mat-form-field>
+
+  <!-- Description Field -->
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" required rows="3"></textarea>
+    <mat-icon matPrefix>description</mat-icon>
+    <mat-error *ngIf="uploadForm.get('description')?.invalid">Description is required</mat-error>
+  </mat-form-field>
+
+  <!-- Dimensions -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Width (optional)</mat-label>
+      <input matInput type="number" formControlName="width">
+      <span matSuffix class="text-gray-500">px</span>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Height (optional)</mat-label>
+      <input matInput type="number" formControlName="height">
+      <span matSuffix class="text-gray-500">px</span>
+    </mat-form-field>
+  </div>
+
+  <!-- File Upload -->
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Image *</label>
+    <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" #fileInput>
+
+    <div
+      (click)="fileInput.click()"
+      class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors"
+      [class.border-blue-400]="selectedFile">
+
+      <div *ngIf="!selectedFile; else fileSelected" class="space-y-2">
+        <mat-icon class="text-gray-400">cloud_upload</mat-icon>
+        <p class="text-sm text-gray-600">Click to select or drag and drop</p>
+        <p class="text-xs text-gray-500">JPG, PNG, WEBP (Max 10MB)</p>
+      </div>
+
+      <ng-template #fileSelected>
+        <div class="flex flex-col items-center space-y-2">
+          <mat-icon class="text-green-500">check_circle</mat-icon>
+          <span class="font-medium text-gray-700 truncate max-w-full">{{ selectedFile?.name }}</span>
+          <span class="text-xs text-gray-500">{{ selectedFile?.size | filesize }}</span>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <mat-progress-bar
+    *ngIf="isUploading"
+    mode="determinate"
+    [value]="uploadProgress"
+    class="mt-2">
+  </mat-progress-bar>
+
+  <!-- Action Buttons -->
+  <div class="flex justify-end gap-3 pt-4">
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="uploadComplete.emit()"
+      [disabled]="isUploading"
+      class="px-6">
+      Cancel
+    </button>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="uploadForm.invalid || !selectedFile || isUploading"
+      class="px-6">
+      <span *ngIf="!isUploading">Upload</span>
+      <span *ngIf="isUploading">Uploading...</span>
+    </button>
+  </div>
+</form>
