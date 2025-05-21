@@ -25,4 +25,9 @@ export class ApiService {
   getImageUrl(fileId: string): string {
     return `${this.apiUrl}/${fileId}`;
   }
+  downloadImage(fileId: string): Observable<Blob> {
+    return this.http.get(this.getImageUrl(fileId), {
+      responseType: 'blob'
+    });
+  }
 }

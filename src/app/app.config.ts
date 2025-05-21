@@ -26,8 +26,7 @@ export const appConfig: ApplicationConfig = {
       MatInputModule,
       MatIconModule,
       MatProgressSpinnerModule,
-      MatToolbarModule,
-
+      MatToolbarModule
     )
   ]
 };

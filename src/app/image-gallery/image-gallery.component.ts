@@ -11,6 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { FileSizePipe } from '../shared/pipes/filesize.pipe';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-image-gallery',
@@ -25,10 +30,31 @@ import { debounceTime, fromEvent, Subscription } from 'rxjs';
     MatInputModule,
     MatIconModule,
     FileSizePipe,
-    ImageUploadComponent
+    ImageUploadComponent,
+    MatTooltipModule
   ],
   templateUrl: './image-gallery.component.html',
-  styleUrls: ['./image-gallery.component.css']
+  styleUrls: ['./image-gallery.component.css'],
+  animations: [
+    trigger('fadeInGrow', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'scale(0.9)' }),
+        animate('300ms ease-out',
+          style({ opacity: 1, transform: 'scale(1)' }))
+      ])
+    ]),
+    trigger('listAnimation', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger('100ms', [
+            animate('300ms ease-out',
+              style({ opacity: 1, transform: 'translateY(0)' }))
+          ])
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef<HTMLElement>;
@@ -37,13 +63,16 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   nextCursor: string | null = null;
   hasMore = true;
   isLoading = false;
+  isInitialLoad = true;
   searchQuery = '';
   private scrollSubscription!: Subscription;
   private resizeSubscription!: Subscription;
   private scrollPositionBeforeLoad = 0;
-  private loadingElement: HTMLElement | null = null;
 
-  constructor(private api: ApiService) { }
+  constructor(
+    private api: ApiService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit() {
     this.loadImages();
@@ -75,7 +104,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }, {
       root: null,
-      rootMargin: '200px 0px', // Trigger load when within 200px of viewport bottom
+      rootMargin: '300px 0px',
       threshold: 0.01
     });
 
@@ -89,7 +118,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const element = this.scrollAnchor.nativeElement;
     const rect = element.getBoundingClientRect();
-    const isNearBottom = rect.top <= window.innerHeight + 200; // Load when within 200px of viewport bottom
+    const isNearBottom = rect.top <= window.innerHeight + 300;
 
     if (isNearBottom) {
       this.loadMoreImages();
@@ -99,14 +128,26 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   loadMoreImages() {
     if (!this.hasMore || this.isLoading) return;
 
-    // Store current scroll position
-    this.scrollPositionBeforeLoad = window.scrollY + window.innerHeight;
-
+    this.scrollPositionBeforeLoad = window.scrollY;
     this.isLoading = true;
+
     this.api.getImages(this.nextCursor, 12, this.searchQuery).subscribe({
       next: (res) => {
-        const newImages = res.data.images.map((img: any) => ({ ...img, loaded: false }));
-        this.images = [...this.images, ...newImages];
+        const
+          newImages = res.data.images.map((img: any) => ({
+            ...img,
+            loaded: false,
+            aspectRatio: img.width / img.height || 1,
+            showFullDescription: false
+          }));
+
+        if (this.isInitialLoad) {
+          this.images = newImages;
+          this.isInitialLoad = false;
+        } else {
+          this.images = [...this.images, ...newImages];
+        }
+
         this.nextCursor = res.data.pagination.next_cursor;
         this.hasMore = res.data.pagination.has_more;
       },
@@ -115,15 +156,35 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoading = false;
       },
       complete: () => {
-
         setTimeout(() => {
           window.scrollTo({
-            top: this.scrollPositionBeforeLoad - window.innerHeight,
+            top: this.scrollPositionBeforeLoad,
             behavior: 'auto'
           });
           this.isLoading = false;
-        }, 1000);
+        }, 100);
       }
+    });
+  }
+
+  // Zoom functionality
+  openImageDialog(image: any): void {
+    this.dialog.open(ImageDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      data: {
+        imageUrl: this.getImageUrl(image.fileId),
+        title: image.title,
+        description: image.description
+      },
+      panelClass: 'image-dialog-container'
+    });
+  }
+
+  // Download functionality
+  downloadImage(image: any): void {
+    this.api.downloadImage(image.fileId).subscribe(blob => {
+      saveAs(blob, image.title || `image_${image.fileId.slice(0, 8)}`);
     });
   }
 
@@ -131,6 +192,7 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.images = [];
     this.nextCursor = null;
     this.hasMore = true;
+    this.isInitialLoad = true;
     this.loadMoreImages();
   }
 
@@ -156,4 +218,16 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.closeUploadModal();
     this.loadImages();
   }
+
+  showFullDescription: boolean = false;
+
+  toggleDescription(image: any): void {
+    image.showFullDescription = !image.showFullDescription;
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.loadImages();
+  }
+
 }

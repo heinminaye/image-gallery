@@ -1,0 +1,38 @@
+/* Reduce the height of the form field */
+.compact-search .mat-form-field-wrapper {
+  padding-bottom: 0.5em;
+}
+
+/* Adjust the outline gap */
+.compact-search .mat-form-field-outline-start,
+.compact-search .mat-form-field-outline-gap,
+.compact-search .mat-form-field-outline-end {
+  min-height: 42px !important; /* Adjust this value as needed */
+}
+
+/* Adjust the input and label positioning */
+.compact-search .mat-form-field-infix {
+  padding: 0.5em 0;
+  border-top: 0;
+}
+
+.compact-search .mat-form-field-label-wrapper {
+  top: -1.2em;
+}
+
+.compact-search .mat-form-field-label {
+  margin-top: 0.2em;
+}
+
+/* Adjust the prefix/suffix icons */
+.compact-search .mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+
+/* Make the input text smaller */
+.compact-search .mat-input-element {
+  font-size: 14px;
+  height: 20px;
+}

@@ -1,114 +1,130 @@
-<div class="p-6 min-h-screen">
-  <div class="flex justify-end mb-6">
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="openUploadModal()"
-      class="flex items-center gap-2">
-      <mat-icon>add</mat-icon>
-      Upload Image
-    </button>
-  </div>
+<div class="p-6 min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto">
-    <!-- Header Section -->
+    <!-- Header Section with Improved Layout -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-      <h2 class="text-3xl font-bold text-gray-800 animate-fade-in">Image Gallery</h2>
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">Image Gallery</h2>
+        <p class="text-gray-500 mt-1">Browse and manage your image collection</p>
+      </div>
 
-      <!-- Search Bar -->
-      <div class="w-full md:w-96 animate-fade-in delay-100">
-        <mat-form-field appearance="fill" class="w-full" floatLabel="always">
-          <mat-label>Search images</mat-label>
-          <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
-          <button matSuffix mat-icon-button (click)="onSearch()">
-            <mat-icon>search</mat-icon>
-          </button>
-        </mat-form-field>
+      <div class="flex items-center gap-4">
+        <!-- Custom Tailwind CSS Search Bar -->
+        <div class="relative w-full md:w-72">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+            </svg>
+          </div>
+          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white
+           focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:outline-none" placeholder="Search images...">
+        </div>
+
+        <!-- Upload Button -->
+        <button mat-raised-button (click)="openUploadModal()"
+          class="flex items-center justify-center gap-1 sm:gap-2 transition-all duration-200
+                bg-white text-gray-800 hover:bg-gray-50
+                border border-gray-200 hover:border-gray-300
+                shadow-sm hover:shadow
+                px-3.5 !py-1.5 sm:px-4 sm:!py-3 !rounded-md
+                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400/50
+                active:scale-[0.98] text-sm sm:text-base">
+        <mat-icon class="!w-5 !h-5 text-gray-600">cloud_upload</mat-icon>
+        <span class="sr-only sm:not-sr-only sm:inline font-medium">Upload</span>
+      </button>
       </div>
     </div>
 
-    <!-- Image Grid -->
-    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    <!-- Image Grid with Enhanced Card Design -->
+    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" @listAnimation>
       <ng-container *ngFor="let image of images; let i = index">
-        <!-- Card with Animation -->
-        <mat-card
-          @fadeInGrow
-          *ngIf="!isLoading"
-          class="h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 border border-gray-200 rounded-xl"
-          [style.animation-delay]="(i % 8) * 0.1 + 's'">
+        <mat-card @fadeInGrow class="group h-full flex flex-col overflow-hidden border border-gray-200 rounded-xl bg-white
+            shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/20">
 
-          <!-- Image Container with Loading State -->
-          <div class="relative pt-[100%] overflow-hidden bg-gray-100">
-            <img
-              [src]="getImageUrl(image.fileId)"
-              [alt]="image.title"
-              loading="lazy"
-              (load)="image.loaded = true"
+          <!-- Image Container -->
+          <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+            <img [src]="getImageUrl(image.fileId)" [alt]="image.title" loading="lazy" (load)="image.loaded = true"
               [class.opacity-0]="!image.loaded"
-              class="absolute top-0 left-0 w-full h-full object-cover transition-all duration-500 hover:scale-105" />
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
 
             <!-- Skeleton Loader -->
-            <div *ngIf="!image.loaded" class="absolute inset-0 flex items-center justify-center">
-              <mat-spinner diameter="40"></mat-spinner>
+            <div *ngIf="!image.loaded"
+              class="absolute inset-0 flex items-center justify-center bg-gray-100 animate-pulse">
+              <mat-spinner diameter="36" color="primary"></mat-spinner>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                    flex items-center justify-center gap-3">
+              <button mat-mini-fab color="primary" class="!w-9 !h-9 shadow-md" (click)="openImageDialog(image)">
+                <mat-icon>zoom_in</mat-icon>
+              </button>
+              <button mat-mini-fab color="accent" class="!w-9 !h-9 shadow-md" (click)="downloadImage(image)">
+                <mat-icon>download</mat-icon>
+              </button>
+            </div>
+
+            <!-- Date Badge -->
+            <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full
+                    text-xs font-medium text-gray-700 shadow-sm">
+              {{ image.uploadDate | date:'shortDate' }}
             </div>
           </div>
 
           <!-- Card Content -->
-          <mat-card-content class="p-4">
-            <h3 class="font-semibold text-lg text-gray-800 mb-1 truncate">{{ image.title }}</h3>
-            <p class="text-gray-600 text-sm line-clamp-2 mb-2">{{ image.description }}</p>
-            <div class="flex items-center justify-between text-xs text-gray-500">
-              <span>{{ image.size | filesize }}</span>
-              <span class="bg-gray-100 px-2 py-1 rounded-full">{{ image.contentType }}</span>
+          <mat-card-content class="p-4 flex flex-col gap-2">
+            <h3 class="font-medium text-gray-800 truncate hover:text-primary transition-colors cursor-default"
+              [matTooltip]="image.title || 'Untitled'">
+              {{ image.title || 'Untitled' }}
+            </h3>
+
+            <p class="text-gray-500 text-sm line-clamp-2 min-h-[2.5rem] hover:line-clamp-none
+                  transition-all cursor-default">
+              {{ image.description || 'No description provided' }}
+            </p>
+
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-1">
+                <mat-icon class="text-sm !w-4 !h-4">image</mat-icon>
+                {{ image.size | filesize }}
+              </span>
+              <span class="bg-gray-100 px-2 py-0.5 rounded-full text-gray-600 text-[11px] font-medium uppercase">
+                {{ image.contentType?.split('/')[1] || 'image' }}
+              </span>
             </div>
           </mat-card-content>
         </mat-card>
       </ng-container>
-
-      <!-- Skeleton Loaders for Loading State -->
-      <ng-container *ngIf="isLoading">
-        <div *ngFor="let _ of [].constructor(8)" class="animate-pulse">
-          <div class="h-full bg-gray-200 rounded-xl overflow-hidden">
-            <div class="pt-[100%] bg-gray-300"></div>
-            <div class="p-4 space-y-2">
-              <div class="h-5 bg-gray-300 rounded w-3/4"></div>
-              <div class="h-4 bg-gray-300 rounded w-full"></div>
-              <div class="h-4 bg-gray-300 rounded w-1/2"></div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
     </div>
 
-    <!-- Scroll detection element -->
-    <div #scrollAnchor *ngIf="hasMore && !isLoading"></div>
+    <!-- Scroll Detection -->
+    <div #scrollAnchor style="height: 1px;"></div>
 
-    <!-- Loading spinner at bottom when loading more -->
-    <div *ngIf="isLoading" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-full p-3 z-10">
-      <mat-spinner diameter="40"></mat-spinner>
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div class="bg-white shadow-lg rounded-full p-3 flex items-center justify-center animate-pulse">
+        <mat-spinner diameter="40" color="primary"></mat-spinner>
+      </div>
     </div>
 
-    <!-- End of gallery message -->
-    <div *ngIf="!hasMore && images.length > 0" class="text-center py-8 text-gray-400 animate-fade-in">
-      You've reached the end of the gallery
+    <!-- End of Gallery -->
+    <div *ngIf="!hasMore && images.length > 0 && !isLoading" class="text-center pt-12 flex flex-col items-center">
+      <p class="text-gray-400 text-lg">You've viewed all images</p>
+      <p class="text-gray-400 text-sm mt-1">Upload more to continue browsing</p>
     </div>
   </div>
 </div>
 
-<!-- Upload Modal (unchanged) -->
-<div *ngIf="showUploadModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-    <!-- Modal Header -->
+<!-- Upload Modal -->
+<div *ngIf="showUploadModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto backdrop-blur-sm">
     <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
       <h2 class="text-xl font-bold text-gray-800">Upload New Image</h2>
-      <button mat-icon-button (click)="closeUploadModal()">
+      <button mat-icon-button (click)="closeUploadModal()" class="hover:bg-gray-100">
         <mat-icon>close</mat-icon>
       </button>
     </div>
-
-    <!-- Modal Content -->
-    <app-image-upload
-      *ngIf="showUploadModal"
-      (uploadComplete)="onUploadComplete()">
-    </app-image-upload>
+    <app-image-upload *ngIf="showUploadModal" (uploadComplete)="onUploadComplete()"></app-image-upload>
   </div>
 </div>
