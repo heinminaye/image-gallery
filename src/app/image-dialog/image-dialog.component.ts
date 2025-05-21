@@ -16,12 +16,12 @@ export class ImageDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {
       imageUrl: string;
-      fileId: string;  // Add fileId to the dialog data
+      fileId: string;
       title?: string;
       description?: string;
     },
     private dialogRef: MatDialogRef<ImageDialogComponent>,
-    private api: ApiService  // Inject your API service
+    private api: ApiService
   ) {}
 
   onClose(): void {

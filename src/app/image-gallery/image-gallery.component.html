@@ -129,16 +129,3 @@
     </div>
   </div>
 </div>
-
-<!-- Upload Modal -->
-<div *ngIf="showUploadModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto backdrop-blur-sm">
-    <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
-      <h2 class="text-xl font-bold text-gray-800">Upload New Image</h2>
-      <button mat-icon-button (click)="closeUploadModal()" class="hover:bg-gray-100">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-    <app-image-upload *ngIf="showUploadModal" (uploadComplete)="onUploadComplete()"></app-image-upload>
-  </div>
-</div>

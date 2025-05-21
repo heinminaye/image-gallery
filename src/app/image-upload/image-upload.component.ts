@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FileSizePipe } from '../shared/pipes/filesize.pipe';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-image-upload',
@@ -41,7 +42,8 @@ export class ImageUploadComponent {
   constructor(
     private fb: FormBuilder,
     private api: ApiService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialogRef: MatDialogRef<ImageUploadComponent>,
   ) {
     this.uploadForm = this.fb.group({
       title: ['', Validators.required],
@@ -109,5 +111,8 @@ export class ImageUploadComponent {
   private resetForm() {
     this.uploadForm.reset();
     this.selectedFile = null;
+  }
+  onClose(): void {
+    this.dialogRef.close();
   }
 }

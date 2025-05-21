@@ -16,7 +16,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageDialogComponent } from '../image-dialog/image-dialog.component';
 import { saveAs } from 'file-saver';
-
 @Component({
   selector: 'app-image-gallery',
   standalone: true,
@@ -30,7 +29,6 @@ import { saveAs } from 'file-saver';
     MatInputModule,
     MatIconModule,
     FileSizePipe,
-    ImageUploadComponent,
     MatTooltipModule
   ],
   templateUrl: './image-gallery.component.html',
@@ -126,21 +124,21 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  loadMoreImages() {
-    if (!this.hasMore || this.isLoading) return;
+ loadMoreImages() {
+  if (!this.hasMore || this.isLoading) return;
 
-    this.scrollPositionBeforeLoad = window.scrollY;
-    this.isLoading = true;
+  this.scrollPositionBeforeLoad = window.scrollY;
+  this.isLoading = true;
 
-    this.api.getImages(this.nextCursor, 12, this.searchQuery).subscribe({
-      next: (res) => {
-        const
-          newImages = res.data.images.map((img: any) => ({
-            ...img,
-            loaded: false,
-            aspectRatio: img.width / img.height || 1,
-            showFullDescription: false
-          }));
+  this.api.getImages(this.nextCursor, 12, this.searchQuery).subscribe({
+    next: (res) => {
+      if (res.returncode === "200") {
+        const newImages = res.data.images.map((img: any) => ({
+          ...img,
+          loaded: false,
+          aspectRatio: img.width / img.height || 1,
+          showFullDescription: false
+        }));
 
         if (this.isInitialLoad) {
           this.images = newImages;
@@ -151,19 +149,36 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.nextCursor = res.data.pagination.next_cursor;
         this.hasMore = res.data.pagination.has_more;
-      },
-      error: (err) => {
-        console.error('Error loading images:', err);
+      } else {
+        console.warn('Unexpected return code:', res.message);
+      }
+    },
+    error: (err) => {
+      console.error('Error loading images:', err);
+      this.isLoading = false;
+    },
+    complete: () => {
+      setTimeout(() => {
+        window.scrollTo({
+          top: this.scrollPositionBeforeLoad,
+          behavior: 'auto'
+        });
         this.isLoading = false;
-      },
-      complete: () => {
-        setTimeout(() => {
-          window.scrollTo({
-            top: this.scrollPositionBeforeLoad,
-            behavior: 'auto'
-          });
-          this.isLoading = false;
-        }, 100);
+      }, 100);
+    }
+  });
+}
+
+
+  openUploadModal(): void {
+    const dialogRef = this.dialog.open(ImageUploadComponent, {
+      maxWidth: '1200px',
+      panelClass: 'upload-modal-container',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'uploaded') {
+        this.loadImages();
       }
     });
   }
@@ -205,10 +220,6 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   showUploadModal = false;
-
-  openUploadModal() {
-    this.showUploadModal = true;
-  }
 
   closeUploadModal() {
     this.showUploadModal = false;
