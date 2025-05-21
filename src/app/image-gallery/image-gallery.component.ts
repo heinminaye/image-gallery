@@ -167,14 +167,13 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // Zoom functionality
   openImageDialog(image: any): void {
     this.dialog.open(ImageDialogComponent, {
-      width: '90vw',
       maxWidth: '1200px',
       data: {
         imageUrl: this.getImageUrl(image.fileId),
         title: image.title,
+        fileId: image.fileId,
         description: image.description
       },
       panelClass: 'image-dialog-container'
@@ -229,5 +228,19 @@ export class ImageGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.searchQuery = '';
     this.loadImages();
   }
+  getImageTypeColor(contentType: string | undefined): string {
+  const type = contentType?.split('/')[1]?.toLowerCase();
 
+  switch(type) {
+    case 'jpeg':
+    case 'jpg':
+      return 'bg-blue-100 text-blue-800';
+    case 'png':
+      return 'bg-green-100 text-green-800';
+    case 'webp':
+      return 'bg-purple-100 text-purple-800';
+    default:
+      return 'bg-gray-100 text-gray-600';
+  }
+}
 }

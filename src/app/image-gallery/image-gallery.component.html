@@ -1,10 +1,9 @@
 <div class="p-6 min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto">
     <!-- Header Section with Improved Layout -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div class="flex sticky top-10 bg-white z-10 flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div>
         <h2 class="text-3xl font-bold text-gray-800">Image Gallery</h2>
-        <p class="text-gray-500 mt-1">Browse and manage your image collection</p>
       </div>
 
       <div class="flex items-center gap-4">
@@ -22,17 +21,17 @@
         </div>
 
         <!-- Upload Button -->
-        <button mat-raised-button (click)="openUploadModal()"
-          class="flex items-center justify-center gap-1 sm:gap-2 transition-all duration-200
-                bg-white text-gray-800 hover:bg-gray-50
-                border border-gray-200 hover:border-gray-300
-                shadow-sm hover:shadow
-                px-3.5 !py-1.5 sm:px-4 sm:!py-3 !rounded-md
-                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400/50
-                active:scale-[0.98] text-sm sm:text-base">
-        <mat-icon class="!w-5 !h-5 text-gray-600">cloud_upload</mat-icon>
-        <span class="sr-only sm:not-sr-only sm:inline font-medium">Upload</span>
-      </button>
+        <button mat-raised-button (click)="openUploadModal()" class="!rounded-md
+         active:scale-[0.98] !h-full !py-1.5
+         !text-sm sm:text-base">
+          <!-- Icon and text in a flex row -->
+          <div class="flex items-center gap-0 sm:gap-2">
+            <mat-icon class="text-gray-600 text-[20px] sm:text-[24px] sm:mr-2">cloud_upload</mat-icon>
+            <span class="hidden sm:inline font-medium">Upload</span>
+          </div>
+        </button>
+
+
       </div>
     </div>
 
@@ -74,12 +73,12 @@
 
           <!-- Card Content -->
           <mat-card-content class="p-4 flex flex-col gap-2">
-            <h3 class="font-medium text-gray-800 truncate hover:text-primary transition-colors cursor-default"
+            <h3 class="font-medium text-gray-800 mt-2 mb-1 truncate hover:text-primary transition-colors cursor-default"
               [matTooltip]="image.title || 'Untitled'">
               {{ image.title || 'Untitled' }}
             </h3>
 
-            <p class="text-gray-500 text-sm line-clamp-2 min-h-[2.5rem] hover:line-clamp-none
+            <p class="text-gray-500 text-sm line-clamp-2 mb-2 min-h-[2.5rem]
                   transition-all cursor-default">
               {{ image.description || 'No description provided' }}
             </p>
@@ -89,9 +88,10 @@
                 <mat-icon class="text-sm !w-4 !h-4">image</mat-icon>
                 {{ image.size | filesize }}
               </span>
-              <span class="bg-gray-100 px-2 py-0.5 rounded-full text-gray-600 text-[11px] font-medium uppercase">
-                {{ image.contentType?.split('/')[1] || 'image' }}
-              </span>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-medium uppercase
+            {{ getImageTypeColor(image.contentType) }}">
+      {{ image.contentType?.split('/')[1] || 'image' }}
+    </span>
             </div>
           </mat-card-content>
         </mat-card>

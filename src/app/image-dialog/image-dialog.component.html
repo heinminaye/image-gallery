@@ -1,1 +1,42 @@
-<p>image-dialog works!</p>
+<div class="flex flex-col bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] w-[95vw] max-w-[800px] border border-gray-200">
+  <!-- Header -->
+  <div class="flex items-center justify-between p-5 border-b border-gray-100 bg-white sticky top-0 z-10">
+    <h2 class="text-xl font-semibold text-gray-800 truncate max-w-[80%]">
+      {{ data.title || 'Image Preview' }}
+    </h2>
+    <button mat-icon-button
+            class="!flex !items-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+            (click)="onClose()">
+      <mat-icon class="!w-6 !h-6">close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 p-5 overflow-y-auto flex flex-col">
+    <div class="relative flex-1 flex items-center justify-center min-h-[50vh]">
+      <img [src]="data.imageUrl"
+           [alt]="data.title || 'Image preview'"
+           class="max-w-full max-h-[calc(90vh-220px)] object-contain rounded-lg">
+    </div>
+
+    <div *ngIf="data.description" class="mt-5">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
+        <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+          {{ data.description }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="flex justify-end p-4 border-t border-gray-100 bg-white">
+    <button mat-raised-button
+            color="primary"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg"
+            (click)="downloadImage()">
+      <mat-icon class="!w-5 !h-5">download</mat-icon>
+      <span class="font-medium">Download</span>
+    </button>
+  </div>
+</div>
