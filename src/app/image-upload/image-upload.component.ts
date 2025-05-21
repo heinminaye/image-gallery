@@ -136,9 +136,15 @@ export class ImageUploadComponent {
     });
   }
 
-  private resetForm() {
-    this.uploadForm.reset();
+   removeFile(event: Event) {
+    event.stopPropagation(); // Prevent triggering the file input click
     this.selectedFile = null;
+
+    // Reset the file input value to allow selecting the same file again
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 
   onClose(): void {

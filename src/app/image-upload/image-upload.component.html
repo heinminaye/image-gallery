@@ -29,38 +29,47 @@
     </div>
 
     <!-- File Upload -->
-    <div class="space-y-2">
-      <label class="block text-sm font-medium text-gray-700">Image *</label>
-      <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" #fileInput>
+  <div class="space-y-2">
+  <div class="flex justify-between items-center">
+  <label class="block text-sm font-medium text-gray-700">Image *</label>
 
-      <div (click)="fileInput.click()"
-        class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors"
-        [class.border-blue-400]="selectedFile || isDragging"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)">
+  <button
+    *ngIf="selectedFile"
+    type="button"
+    (click)="removeFile($event)"
+    class="text-sm bg-red-500 cursor-pointer text-white rounded p-0.5 hover:bg-red-700 transition-colors"
+  >
+    Remove
+  </button>
+</div>
 
-        <div *ngIf="!selectedFile; else fileSelected" class="space-y-2">
-          <mat-icon class="text-gray-400">{{ isDragging ? 'file_upload' : 'cloud_upload' }}</mat-icon>
-          <p class="text-sm text-gray-600">
-            {{ isDragging ? 'Drop your image here' : 'Click to select or drag and drop' }}
-          </p>
-          <p class="text-xs text-gray-500">JPG, PNG, WEBP (Max 10MB)</p>
-        </div>
 
-        <ng-template #fileSelected>
-          <div class="flex flex-col items-center space-y-2">
-            <mat-icon class="text-green-500">check_circle</mat-icon>
-            <span class="font-medium text-gray-700 truncate max-w-full">{{ selectedFile?.name }}</span>
-            <span class="text-xs text-gray-500">{{ selectedFile?.size | filesize }}</span>
-          </div>
-        </ng-template>
+  <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" #fileInput>
+
+  <div (click)="fileInput.click()"
+    class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors"
+    [class.border-blue-400]="selectedFile || isDragging"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+
+      <div *ngIf="!selectedFile; else fileSelected" class="space-y-2">
+        <mat-icon class="text-gray-400">{{ isDragging ? 'file_upload' : 'cloud_upload' }}</mat-icon>
+        <p class="text-sm text-gray-600">
+          {{ isDragging ? 'Drop your image here' : 'Click to select or drag and drop' }}
+        </p>
+        <p class="text-xs text-gray-500">JPG, PNG, WEBP (Max 10MB)</p>
       </div>
 
-      <!-- Progress Bar -->
-      <mat-progress-bar *ngIf="isUploading" mode="determinate" [value]="uploadProgress" class="mt-2">
-      </mat-progress-bar>
-    </div>
+    <ng-template #fileSelected>
+      <div class="flex flex-col items-center space-y-2">
+        <mat-icon class="text-green-500">check_circle</mat-icon>
+        <span class="font-medium text-gray-700 truncate max-w-full">{{ selectedFile?.name }}</span>
+        <span class="text-xs text-gray-500">{{ selectedFile?.size | filesize }}</span>
+      </div>
+    </ng-template>
+  </div>
+</div>
 
     <!-- Action Buttons -->
     <div class="flex justify-end gap-3 pt-4">
