@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:3030/api/images'; // Update with your API URL
+  private apiUrl = 'https://image-upload-production-910c.up.railway.app/api/images';
 
   constructor(private http: HttpClient) { }
 
